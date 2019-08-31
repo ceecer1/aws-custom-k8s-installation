@@ -1,8 +1,6 @@
-# aws-custom-k8s-installation
-
 --------------------------------------------
 
-AWS K8s custom cluster creation on US EAST 1
+AWS Custom Kubernetes Cluster Installation on US EAST 1
 
 --------------------------------------------
 
@@ -14,15 +12,15 @@ AWS K8s custom cluster creation on US EAST 1
 
 #3.  Kops user needs the following IAM permissions:
 
-	 - AmazonEC2FullAccess
+	 + AmazonEC2FullAccess
 
-	 - AmazonRoute53FullAccess
+	 + AmazonRoute53FullAccess
 
-	 - AmazonS3FullAccess
+	 + AmazonS3FullAccess
 
-	 - IAMFullAccess
+	 + IAMFullAccess
 
-	 - AmazonVPCFullAccess
+	 + AmazonVPCFullAccess
 
 
 
@@ -30,11 +28,11 @@ AWS K8s custom cluster creation on US EAST 1
 
 #4.  On the bootstrap instance, install kops and kubectl visiting the following link:
 
-	 - https://github.com/kubernetes/kops/blob/master/docs/install.md and run the following
+	 + https://github.com/kubernetes/kops/blob/master/docs/install.md and run the following
 
-	 - aws configure # Use your new access and secret key here
+	 + aws configure # Use your new access and secret key here
 
-	 - aws iam list-users # confirm a list of users
+	 + aws iam list-users # confirm a list of users
 
 #5.  Create S3 bucket 'moneyball-k8s-state-storage', block public acess which is default
 
@@ -48,7 +46,7 @@ AWS K8s custom cluster creation on US EAST 1
 
 #10. Check availability zones with the following command:
 
-	 - aws ec2 describe-availability-zones --region us-east-1
+	 + aws ec2 describe-availability-zones --region us-east-1
 
 #11. kops create cluster --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1e,us-east-1f ${NAME}
 
@@ -58,29 +56,29 @@ AWS K8s custom cluster creation on US EAST 1
 
 #14. Check default cluster configuration
 
-	 - kops edit cluster ${NAME}
+	 + kops edit cluster ${NAME}
 
 #15. Exit vi editor and set something friendly
 
-	 - export EDITOR=nano
+	 + export EDITOR=nano
 
 #16. Check the configuration of EC2 nodes inside the cluster, and edit the instance groups via following
 
-	 - kops edit ig nodes --name ${NAME}
+	 + kops edit ig nodes --name ${NAME}
 
-	 - normally we would put maxSize = 5 and minSize = 3 as a starting point.
+	 + normally we would put maxSize = 5 and minSize = 3 as a starting point.
 
 #17. Confirm the type of nodes and configuration via the following command
 
-	 - kops get ig --name ${NAME}
+	 + kops get ig --name ${NAME}
 
 #18. If you want to edit any instance group, copy the name master or nodes and hit the following:
 
-	 - kops edit ig master-us-east1a --name ${NAME} #if that is the name
+	 + kops edit ig master-us-east1a --name ${NAME} #if that is the name
 
 #19. To actually start running the K8s cluster in cloud, hit the command:
 
-	 - kops update cluster ${NAME} --yes
+	 + kops update cluster ${NAME} --yes
 
 #20. Run 'kops validate cluster' to see if the cluster is live or not, takes a few mins, keep hitting this command.
 
@@ -94,111 +92,105 @@ AWS K8s custom cluster creation on US EAST 1
 
 #25. Restarting cluster
 
-	 - if you are not logged into the bootstrap instance, run the following once again
+	 + if you are not logged into the bootstrap instance, run the following once again
 
-	 - export NAME=fleetman.k8s.local
+	 + export NAME=fleetman.k8s.local
 
-	 - export KOPS_STATE_STORE=s3://bucket-name
+	 + export KOPS_STATE_STORE=s3://bucket-name
 
-	 - kops create cluster --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1e,us-east-1f ${NAME}
+	 + kops create cluster --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1e,us-east-1f ${NAME}
 
-	 - Edit InstanceGroup via running 'kops edit ig nodes --name ${NAME}', set min/max 3 and 5 in our example.
+	 + Edit InstanceGroup via running 'kops edit ig nodes --name ${NAME}', set min/max 3 and 5 in our example.
 
-	 - kops update cluster ${NAME} --yes
+	 + kops update cluster ${NAME} --yes
 
-	 - Apply the YAML files to create all your pods and services.
+	 + Apply the YAML files to create all your pods and services.
 
 
 
 #26. To view the logs:
 
-	 - kubectl logs name_of_pod
+	 + kubectl logs name_of_pod
 
 
 
 #27. To go inside the running container:
 
-	 - kubectl exec -it name_of_pod bash # bash can be replaced with sh
+	 + kubectl exec -it name_of_pod bash # bash can be replaced with sh
 
 
 
 #28. To install Kibana log monitoring tool, you have to install ELK stack, by default the following installs the stack in 'kube-system' namespace
 
-	 - kubectl apply -f fluentd-config.yaml # we are using fluentd in our case, you can use logstash as well. This will be installed on all available nodes.
+	 + kubectl apply -f fluentd-config.yaml # we are using fluentd in our case, you can use logstash as well. This will be installed on all available nodes.
 
-	 - kubectl apply -f elk_stack.yaml
+	 + kubectl apply -f elk_stack.yaml
 
 #29. Check the Kibana logging service
 
-	 - kubectl describe svc kibana-logging -n kube-system # note the load balancer created and port, and check against AWS LoadBalancers page.
+	 + kubectl describe svc kibana-logging -n kube-system # note the load balancer created and port, and check against AWS LoadBalancers page.
 
-	 - In browser go to, load balancer url with port 5601 to see Kibana portal
+	 + In browser go to, load balancer url with port 5601 to see Kibana portal
 
 
 
 #30. For Grafana to monitor cluster health metrics
 
-	 - Install helm, via https://helm.sh, github latest release for linux.
+	 + Install helm, via https://helm.sh, github latest release for linux.
 
-	 - https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz # this link could be different
+	 + https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz # this link could be different
 
-	 - On bootstrap instance, 'wget https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz'
+	 + On bootstrap instance, 'wget https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz'
 
-	 - Run 'tar zxvf helm-v2.14.3-linux-amd64.tar.gz'
+	 + Run 'tar zxvf helm-v2.14.3-linux-amd64.tar.gz'
 
-	 - sudo mv linux-amd64/helm /usr/local/bin/
+	 + sudo mv linux-amd64/helm /usr/local/bin/
 
-	 - clean/remove unzip and downloaded file to make it look tidy, coz we don't need these files anymore.
+	 + clean/remove unzip and downloaded file to make it look tidy, coz we don't need these files anymore.
 
-	 - helm version # this will probably hang, gives the client version. Hangs because it is trying to find the server version. It is running to run kubectl command in the background trying to connect running pod in the cluster. Hit 'CTRL + C' to exit and continue the following.
+	 + helm version # this will probably hang, gives the client version. Hangs because it is trying to find the server version. It is running to run kubectl command in the background trying to connect running pod in the cluster. Hit 'CTRL + C' to exit and continue the following.
 
-	 - helm init # This runs a tiller pod if you visit 'kubectl get po -n kube-system'
+	 + helm init # This runs a tiller pod if you visit 'kubectl get po -n kube-system'
 
-	 - Run again 'helm versioin' should show both client and server versions.
+	 + Run again 'helm versioin' should show both client and server versions.
 
-	 - helm repo update # updates all the local indexes connecting to remote repository
+	 + helm repo update # updates all the local indexes connecting to remote repository
 
 
 
  #31. Tiller pod has been installed by default into the kube-system namespace, and this pod does not have the correct access privileges to allow it to START UP NEW pods in the default namespace. To fix this access privilege, run the following before  you do any helm install packages.
 
- 	 - kubectl create serviceaccount --namespace kube-system tiller
+ 	 + kubectl create serviceaccount --namespace kube-system tiller
 
-	 - kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+	 + kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 
 
 
-	 - kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}' 
+	 + kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}' 
 
 
 
 #32. Check helm installations
 
-	 - helm ls
+	 + helm ls
 
 
 
 #33. Delete helm installation
 
-	 - helm delete --purge installation_name
+	 + helm delete --purge installation_name
 
 
 
 #34. helm stable charts page from github
 
-	 - helm install --name monitoring --namespace monitoring stable/prometheus-operator
+	 + helm install --name monitoring --namespace monitoring stable/prometheus-operator
 
-	 - kubectl get all -n monitoring # check the grafana service
+	 + kubectl get all -n monitoring # check the grafana service
 
 
 
 #35. 
-
-
-
-
-
-
 
 
 
